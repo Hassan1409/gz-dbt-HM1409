@@ -6,7 +6,11 @@ sources:
     tables:
       - name: sales
         identifier: raw_gz_sales
-        description: Raw sales data. One row per product_id per orders_id.
+        description: Raw sales data...
+        loaded_at_field: "CAST(date_date AS TIMESTAMP)"
+        freshness:
+          warn_after: {count: 90, period: day}
+          error_after: {count: 365, period: day}
         columns:
           - name: orders_id
             description: Order identifier
@@ -18,41 +22,80 @@ sources:
         description: Raw product master data
         columns:
           - name: products_id
-            description: Primary key for product table
-            tests:
-              - not_null
-              - unique
+            description: Primary key
+            tests: [not_null, unique]
 
       - name: ship
         identifier: raw_gz_ship
         description: Raw shipping data
         columns:
           - name: orders_id
-            description: Primary key for shipping table
-            tests:
-              - not_null
-              - unique
+            description: Primary key
+            tests: [not_null, unique]
 
+# 👇 Add this new section, don’t replace the above
 models:
+  - name: int_sales_margin
+    description: Product-level sales with purchase_cost and margin.
+    columns:
+      - name: orders_id
+        description: Foreign key to identify the order.
+        tests: [not_null]
+      - name: products_id
+        description: Product identifier.
+        tests: [not_null]
+      - name: margin
+        description: Revenue minus purchase_cost.
+        tests: [not_null]
+
+  - name: int_orders_margin
+    description: Order-level aggregated margins.
+    columns:
+      - name: orders_id
+        description: Primary key of this table (one row per order).
+        tests: [not_null, unique]
+      - name: revenue
+        description: Total revenue per order.
+        tests: [not_null]
+      - name: purchase_cost
+        description: Total purchase cost per order.
+        tests: [not_null]
+      - name: margin
+        description: Margin per order (revenue – purchase_cost).
+        tests: [not_null]
+
+  - name: int_orders_operational
+    description: Order-level operational margin.
+    columns:
+      - name: orders_id
+        description: Primary key of this table (one row per order).
+        tests: [not_null, unique]
+      - name: operational_margin
+        description: Operational margin per order.
+        tests: [not_null]
+
   - name: finance_days
-    description: Daily finance KPIs (transactions, revenue, basket, margins, costs, quantity)
+    description: Daily finance KPIs for reporting.
     columns:
       - name: date
-        description: Calendar date (grain of the mart)
+        description: Calendar date (grain of this table).
         tests: [not_null]
       - name: total_transactions
-        description: Count of distinct orders in the day
+        description: Count of distinct orders in the day.
+        tests: [not_null]
       - name: total_revenue
-        description: Sum of revenue across orders in the day
+        description: Sum of revenue across orders in the day.
+        tests: [not_null]
       - name: average_basket
-        description: total_revenue / total_transactions
+        description: Average revenue per order.
       - name: operational_margin
-        description: Sum of per-order operational margin for the day
+        description: Sum of operational margins for the day.
       - name: total_purchase_cost
-        description: Sum of purchase costs across orders in the day
+        description: Sum of purchase costs across orders.
       - name: total_shipping_fees
-        description: Sum of shipping fees charged to customers in the day
+        description: Sum of shipping fees charged to customers.
       - name: total_log_costs
-        description: Sum of logistics costs in the day
+        description: Sum of logistics costs across orders.
       - name: total_quantity
-        description: Sum of product quantities sold in the day
+        description: Total products sold in the day.
+        tests: [not_null]
