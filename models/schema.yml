@@ -32,3 +32,27 @@ sources:
             tests:
               - not_null
               - unique
+
+models:
+  - name: finance_days
+    description: Daily finance KPIs (transactions, revenue, basket, margins, costs, quantity)
+    columns:
+      - name: date
+        description: Calendar date (grain of the mart)
+        tests: [not_null]
+      - name: total_transactions
+        description: Count of distinct orders in the day
+      - name: total_revenue
+        description: Sum of revenue across orders in the day
+      - name: average_basket
+        description: total_revenue / total_transactions
+      - name: operational_margin
+        description: Sum of per-order operational margin for the day
+      - name: total_purchase_cost
+        description: Sum of purchase costs across orders in the day
+      - name: total_shipping_fees
+        description: Sum of shipping fees charged to customers in the day
+      - name: total_log_costs
+        description: Sum of logistics costs in the day
+      - name: total_quantity
+        description: Sum of product quantities sold in the day
