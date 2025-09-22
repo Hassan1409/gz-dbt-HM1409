@@ -1,12 +1,34 @@
 version: 2
 
 sources:
-  - name: raw        # 👈 Alias for dataset (instead of gz_raw_data)
+  - name: raw
     schema: gz_raw_data
     tables:
-      - name: sales   # 👈 Alias for raw_gz_sales
+      - name: sales
         identifier: raw_gz_sales
-      - name: product # 👈 Alias for raw_gz_product
+        description: Raw sales data. One row per product_id per orders_id.
+        columns:
+          - name: orders_id
+            description: Order identifier
+          - name: pdt_id
+            description: Product identifier
+
+      - name: product
         identifier: raw_gz_product
-      - name: ship    # 👈 Alias for raw_gz_ship
+        description: Raw product master data
+        columns:
+          - name: products_id
+            description: Primary key for product table
+            tests:
+              - not_null
+              - unique
+
+      - name: ship
         identifier: raw_gz_ship
+        description: Raw shipping data
+        columns:
+          - name: orders_id
+            description: Primary key for shipping table
+            tests:
+              - not_null
+              - unique
