@@ -1,9 +1,17 @@
 with source as (
+
     select *
     from {{ source('raw', 'product') }}
+
+),
+
+renamed as (
+
+    select
+        products_id,
+        safe_cast(purchSE_PRICE as float64) as purchase_price
+    from source
 )
 
-select
-    products_id,
-    purchSE_PRICE as purchase_price   -- don’t cast yet
-from source
+select *
+from renamed
