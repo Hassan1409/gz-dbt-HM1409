@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: raw        # 👈 Alias for dataset (instead of gz_raw_data)
+    schema: gz_raw_data
+    tables:
+      - name: sales   # 👈 Alias for raw_gz_sales
+        identifier: raw_gz_sales
+      - name: product # 👈 Alias for raw_gz_product
+        identifier: raw_gz_product
+      - name: ship    # 👈 Alias for raw_gz_ship
+        identifier: raw_gz_ship
