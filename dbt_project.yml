@@ -37,6 +37,16 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   my_new_project:
-    # Applies to all files under models/example/
-    example:
-      +materialized: table
+    # 👇 default for staging models
+    staging:
+      +materialized: view
+
+    # 👇 default for intermediate models
+    intermediate:
+      +materialized: view
+
+    # 👇 default for mart models
+    mart:
+      +materialized: table   # all mart models become tables
+      finance:               # subfolder for finance marts
+        +schema: finance     # create dataset dbt_<user>_finance
