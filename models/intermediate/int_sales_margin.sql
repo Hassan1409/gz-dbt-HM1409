@@ -1,14 +1,40 @@
--- int_sales_margin.sql
+-- models/intermediate/int_sales_margin.sql
+-- Intermediate model: calculate product-level margin and margin percent
 
-  SELECT
-      products_id,
-      date_date,
-      orders_id,
-      revenue,
-      quantity,
-      purchase_price,
-      ROUND(s.quantity*p.purchase_price,2) AS purchase_cost,
-      ROUND(s.revenue - s.quantity*p.purchase_price, 2) AS margin
-  FROM {{ref("stg_raw__sales")}} s
-  LEFT JOIN {{ref("stg_raw__product")}} p
-      USING (products_id)
+with sales as (
+    select
+        orders_id,
+        products_id,              
+        date_date,
+        quantity,
+        cast(revenue as float64) as revenue
+    from {{ ref("stg_raw__sales") }}
+),
+
+products as (
+    select
+        products_id,
+        cast(purchase_price as float64) as purchase_price
+    from {{ ref("stg_raw__product") }}
+)
+
+select
+    s.orders_id,
+    s.products_id,
+    s.date_date,
+    s.quantity,
+    s.revenue,
+    p.purchase_price,
+
+    -- purchase cost per product
+    s.quantity * p.purchase_price as purchase_cost,
+
+    -- margin (revenue - purchase_cost)
+    s.revenue - (s.quantity * p.purchase_price) as margin,
+
+    -- margin percent using macro (wrap in string so dbt treats as SQL col)
+    {{ margin_percent("s.revenue", "s.quantity * p.purchase_price") }} as margin_percent
+
+from sales s
+left join products p
+    on s.products_id = p.products_id
