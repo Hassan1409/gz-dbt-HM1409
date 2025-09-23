@@ -13,7 +13,7 @@ ship as (
     select
         orders_id,
         shipping_fee,
-        safe_cast(logCost as float64) as log_cost,
+        safe_cast(log_cost as float64) as log_cost,
         safe_cast(ship_cost as float64) as ship_cost
     from {{ ref('stg_raw__ship') }}
 

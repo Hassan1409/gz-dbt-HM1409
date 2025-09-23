@@ -6,7 +6,7 @@ sources:
     tables:
       - name: sales
         identifier: raw_gz_sales
-        description: Raw sales data...
+        description: Raw sales data
         loaded_at_field: "CAST(date_date AS TIMESTAMP)"
         freshness:
           warn_after: {count: 90, period: day}
@@ -33,7 +33,22 @@ sources:
             description: Primary key
             tests: [not_null, unique]
 
-# 👇 Add this new section, don’t replace the above
+      - name: adwords
+        identifier: raw_gz_adwords
+        description: Google Adwords raw campaign data
+
+      - name: bing
+        identifier: raw_gz_bing
+        description: Bing Ads raw campaign data
+
+      - name: criteo
+        identifier: raw_gz_criteo
+        description: Criteo Ads raw campaign data
+
+      - name: facebook
+        identifier: raw_gz_facebook
+        description: Facebook Ads raw campaign data
+
 models:
   - name: int_sales_margin
     description: Product-level sales with purchase_cost and margin.
@@ -92,6 +107,7 @@ models:
         description: Sum of operational margins for the day.
       - name: total_purchase_cost
         description: Sum of purchase costs across orders.
+        tests: [not_null]
       - name: total_shipping_fees
         description: Sum of shipping fees charged to customers.
       - name: total_log_costs
@@ -99,3 +115,18 @@ models:
       - name: total_quantity
         description: Total products sold in the day.
         tests: [not_null]
+
+  - name: int_campaigns
+    description: Unified campaigns table combining Adwords, Bing, Criteo, and Facebook.
+    columns:
+      - name: date_date
+        description: Date of the campaign record.
+        tests: [not_null]
+      - name: paid_source
+        description: Source platform (adwords, bing, criteo, facebook).
+        tests: [not_null]
+      - name: campaign_key
+        description: Campaign unique identifier.
+        tests: [not_null]
+      - name: campaign_na_
+
